@@ -10,14 +10,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
-  version = "v1.1.1"
-
-[[projects]]
   digest = "1:3c215bf3587c8b5049a924b62745987a9584d07b7741e577e5728c0221901527"
   name = "github.com/jinzhu/gorm"
   packages = [
@@ -57,7 +49,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/dustin/go-humanize",
-    "github.com/google/uuid",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/sqlite",
     "github.com/segmentio/ksuid",
