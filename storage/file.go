@@ -86,11 +86,24 @@ func (f *File) Info(db *gorm.DB) string {
 
 	db.Model(&Chunk{}).Where("file = ?", f.UID).Count(&cn)
 
-	return fmt.Sprintf("%s\t%s\t%s\t%s\t%d\t%d\t%s\t%s",
-		f.UID, f.Name, f.Path, humanize.IBytes(f.FileSize), cn, f.ChunksTotal, humanize.IBytes(f.ChunkSize), f.ContentType)
+	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s",
+		f.UID, f.Name, f.Path, humanize.IBytes(f.FileSize), f.ContentType)
 }
 
-func (f *File) Put(path string, db *gorm.DB) error {
+func (f *File) Detail() string {
+	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%d\t%s\t%s",
+		f.UID,
+		f.Name,
+		f.Path,
+		f.Perm,
+		humanize.IBytes(f.FileSize),
+		humanize.IBytes(f.ChunkSize),
+		f.ChunksTotal,
+		f.Checksum,
+		f.ContentType)
+}
+
+func (f *File) Push(path string, db *gorm.DB) error {
 	savePath := filepath.Join(path, f.UID)
 
 	// [TODO] Set dir permission from config
@@ -109,7 +122,7 @@ func (f *File) Put(path string, db *gorm.DB) error {
 	for n, err := fd.Read(buff); err == nil; i++ {
 		f.Chunks[i] = NewChunk(f.UID, uint64(i))
 
-		if err := f.Chunks[i].Put(buff[:n], savePath, db); err != nil {
+		if err := f.Chunks[i].Push(buff[:n], savePath, db); err != nil {
 			return err
 		}
 
@@ -119,6 +132,9 @@ func (f *File) Put(path string, db *gorm.DB) error {
 		}
 
 	}
+
+	f.Path = filepath.Clean("/" + f.Path) // [FIXME] dirty...
+
 	db.Create(f)
 
 	return nil

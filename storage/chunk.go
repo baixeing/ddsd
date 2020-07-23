@@ -24,7 +24,7 @@ func NewChunk(fileUID string, seq uint64) *Chunk {
 	}
 }
 
-func (c *Chunk) Put(p []byte, path string, db *gorm.DB) error {
+func (c *Chunk) Push(p []byte, path string, db *gorm.DB) error {
 	to := filepath.Join(path, c.UID)
 
 	// [TODO] get default permissions from config

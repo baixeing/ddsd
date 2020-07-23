@@ -9,15 +9,19 @@ import (
 )
 
 var (
-	put    string
+	detail string
+	push   string
+	pull   string
 	remove string
 	list   bool
 )
 
 func init() {
-	flag.StringVar(&put, "put", "", "file to save")
-	flag.BoolVar(&list, "list", false, "list files on storage")
-	flag.StringVar(&remove, "remove", "", "remove file with UID")
+	flag.StringVar(&detail, "detail", "", "file UID details")
+	flag.StringVar(&push, "push", "", "file to push to DDSD")
+	flag.StringVar(&pull, "pull", "", "file UID to pull from DDSD")
+	flag.BoolVar(&list, "ls", false, "list files on storage")
+	flag.StringVar(&remove, "rm", "", "remove file with UID")
 	flag.Parse()
 
 	n := 0
@@ -41,10 +45,14 @@ func main() {
 	defer s.Close()
 
 	switch {
-	case put != "":
-		if err = s.Put(put, 4096*1024); err != nil {
+	case detail != "":
+		s.Detail(detail)
+	case push != "":
+		if err = s.Push(push, 4096*1024); err != nil {
 			log.Fatalln(err)
 		}
+	case pull != "":
+		log.Println("TODO: ", pull)
 	case remove != "":
 		if err = s.DeleteFile(remove); err != nil {
 			log.Fatalln(err)

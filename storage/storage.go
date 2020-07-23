@@ -35,20 +35,20 @@ func (s *Storage) Close() {
 	s.db.Close()
 }
 
-func (s *Storage) putFile(name string, cs uint64) error {
+func (s *Storage) pushFile(name string, cs uint64) error {
 	f, err := NewFile(name, cs)
 	if err != nil {
 		return err
 	}
 
-	if err = f.Put(s.Path, s.db); err != nil {
+	if err = f.Push(s.Path, s.db); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *Storage) putDir(name string, cs uint64) error {
+func (s *Storage) pushDir(name string, cs uint64) error {
 	// [TODO] LOG instead of return error
 	err := filepath.Walk(name,
 		func(path string, info os.FileInfo, err error) error {
@@ -56,7 +56,7 @@ func (s *Storage) putDir(name string, cs uint64) error {
 				return err
 			}
 			if info.Mode().IsRegular() {
-				return s.putFile(path, cs)
+				return s.pushFile(path, cs)
 			}
 			return nil
 		},
@@ -64,7 +64,7 @@ func (s *Storage) putDir(name string, cs uint64) error {
 	return err
 }
 
-func (s *Storage) Put(name string, cs uint64) error {
+func (s *Storage) Push(name string, cs uint64) error {
 	info, err := os.Lstat(name)
 	if err != nil {
 		return err
@@ -72,9 +72,9 @@ func (s *Storage) Put(name string, cs uint64) error {
 
 	switch m := info.Mode(); {
 	case m.IsRegular():
-		return s.putFile(name, cs)
+		return s.pushFile(name, cs)
 	case m.IsDir():
-		return s.putDir(name, cs)
+		return s.pushDir(name, cs)
 	}
 
 	return nil
@@ -85,11 +85,24 @@ func (s *Storage) Info(_ string) {
 	s.db.Find(&files)
 
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 3, ' ', 0)
-	_, _ = fmt.Fprintf(w, "ID\tFILENAME\tPATH\tSIZE\tCN\tCT\tCS\tCONTENT-TYPE\n")
+	_, _ = fmt.Fprintf(w, "ID\tFILENAME\tPATH\tSIZE\tCONTENT-TYPE\n")
 
 	for _, f := range files {
 		_, _ = fmt.Fprintln(w, f.Info(s.db))
 	}
+	w.Flush()
+}
+
+func (s *Storage) Detail(uuid string) {
+	f := File{}
+	s.db.Find(&f).Where("file = ?", uuid) // [FIXME] SQLite query
+	//	s.db.Where("file = ?", uuid).Find(&f)
+
+	w := tabwriter.NewWriter(os.Stdout, 1, 2, 3, ' ', 0)
+
+	_, _ = fmt.Fprintf(w, "ID\tFILENAME\tPATH\tPERMISSION\tSIZE\tCHUNKSIZE\tCHUNKS\tMD5\tCONTENT-TYPE\n")
+	_, _ = fmt.Fprintln(w, f.Detail())
+
 	w.Flush()
 }
 
