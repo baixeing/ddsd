@@ -12,23 +12,23 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
-	"github.com/dustin/go-humanize"
 )
 
 type File struct {
 	Model
-	UID         string `gorm:"unique"`
-	Name        string
-	Path        string
-	FileSize    uint64
-	ChunkSize   uint64
-	ChunksTotal uint64
-	Perm        os.FileMode
-	Chunks      []*Chunk
-	Checksum    string
-	ContentType string
+	UID         string      `gorm:"unique" json:"uid"`
+	Name        string      `json:"name"`
+	Path        string      `json:"path"`
+	Size        uint64      `json:"size"`
+	ChunkSize   uint64      `json:"chunk_size"`
+	ChunksTotal uint64      `json:"chunks_total"`
+	Perm        os.FileMode `json:"perm"`
+	Chunks      []*Chunk    `json:"-"`
+	Checksum    string      `json:"checksum"`
+	ContentType string      `json:"content_type"`
 }
+
+type Files []File
 
 func NewFile(name string, cs uint64) (*File, error) {
 	// Chunks
@@ -72,7 +72,7 @@ func NewFile(name string, cs uint64) (*File, error) {
 		Name:        filepath.Base(name),
 		Path:        filepath.Dir(name),
 		Perm:        info.Mode().Perm(),
-		FileSize:    size,
+		Size:        size,
 		ChunkSize:   cs,
 		ChunksTotal: n,
 		Chunks:      chunks,
@@ -81,27 +81,27 @@ func NewFile(name string, cs uint64) (*File, error) {
 	}, nil
 }
 
-func (f *File) Info(db *gorm.DB) string {
-	var cn int
+// func (f *File) Info(db *gorm.DB) string {
+// 	var cn int
+//
+// 	db.Model(&Chunk{}).Where("file = ?", f.UID).Count(&cn)
+//
+// 	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s",
+// 		f.UID, f.Name, f.Path, humanize.IBytes(f.Size), f.ContentType)
+// }
 
-	db.Model(&Chunk{}).Where("file = ?", f.UID).Count(&cn)
-
-	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s",
-		f.UID, f.Name, f.Path, humanize.IBytes(f.FileSize), f.ContentType)
-}
-
-func (f *File) Detail() string {
-	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%d\t%s\t%s",
-		f.UID,
-		f.Name,
-		f.Path,
-		f.Perm,
-		humanize.IBytes(f.FileSize),
-		humanize.IBytes(f.ChunkSize),
-		f.ChunksTotal,
-		f.Checksum,
-		f.ContentType)
-}
+// func (f *File) Detail() string {
+// 	return fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%d\t%s\t%s",
+// 		f.UID,
+// 		f.Name,
+// 		f.Path,
+// 		f.Perm,
+// 		humanize.IBytes(f.Size),
+// 		humanize.IBytes(f.ChunkSize),
+// 		f.ChunksTotal,
+// 		f.Checksum,
+// 		f.ContentType)
+// }
 
 func (f *File) Push(path string, db *gorm.DB) error {
 	savePath := filepath.Join(path, f.UID)
