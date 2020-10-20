@@ -15,8 +15,8 @@ var (
 	Cmd = &cobra.Command{
 		Use:                   "ddsctl",
 		Short:                 "ddsctl tool",
-		SilenceUsage:          true,
 		DisableFlagsInUseLine: true,
+		SilenceUsage:          true,
 
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return nil

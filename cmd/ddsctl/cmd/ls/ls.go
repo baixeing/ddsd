@@ -48,7 +48,6 @@ var (
 		Aliases:               []string{"list", "dir"},
 		Short:                 "list files",
 		DisableFlagsInUseLine: true,
-		SilenceUsage:          true,
 
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return nil

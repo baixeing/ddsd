@@ -7,7 +7,6 @@ var Cmd = &cobra.Command{
 	Aliases:               []string{"remove", "rm", "del"},
 	Short:                 "remove files",
 	DisableFlagsInUseLine: true,
-	SilenceUsage:          true,
 
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return nil

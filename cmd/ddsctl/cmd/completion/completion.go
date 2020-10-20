@@ -8,15 +8,12 @@ import (
 
 var (
 	Cmd = &cobra.Command{
-		Use:                   "completion",
+		Use:                   "completion [bash|zsh|fish|powershell]",
 		Short:                 "Completion code for the specified shell",
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 		Args:                  cobra.ExactValidArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return fmt.Errorf("bad")
-			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

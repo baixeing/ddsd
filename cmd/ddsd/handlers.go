@@ -6,6 +6,8 @@ import (
 
 	"encoding/json"
 
+	"fmt"
+
 	"github.com/baixeing/ddsd/storage"
 )
 
@@ -31,5 +33,24 @@ func Status(w http.ResponseWriter, _ *http.Request) {
 }
 
 func Put(w http.ResponseWriter, r *http.Request) {
-	log.Println(*r)
+	f, err := r.MultipartReader()
+	if err != nil {
+		log.Println(err)
+	}
+	buff := make([]byte, 4096*1024)
+	p, err := f.NextPart()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = p.Read(buff)
+	if err != nil {
+		log.Println(err)
+		p.Close()
+		return
+	}
+	fmt.Printf("%#v", buff)
+
+	p.Close()
+
 }

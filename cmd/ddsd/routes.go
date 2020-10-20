@@ -25,7 +25,7 @@ var (
 		},
 		Route{
 			"Put",
-			http.MethodPut,
+			http.MethodPost,
 			"/put",
 			Put,
 		},
